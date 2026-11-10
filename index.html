@@ -3,500 +3,178 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>CSA 1.9–1.15 Review</title>
+<meta name="robots" content="noindex, nofollow">
+<title>Nim &amp; Jim</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Figtree:wght@400;600;800&display=swap">
 <style>
-/* Layout: one reading column. Plan first, then a mixed self-checking test, then notes to look things up in. */
+/* Layout: a hero wordmark, two trading cards side by side, a comparison table, then a guessing game. Lake-and-camo palette. */
 :root{
-  --bg:#f5f7f6; --surface:#ffffff; --fg:#15201c; --muted:#56635e; --line:#d9e1dd;
-  --accent:#0f7a5c; --accent-soft:#e1f2ec; --code-bg:#12201b; --code-fg:#e6f0ec;
-  --trap:#fff4d6; --trap-line:#e0b03a; --trap-fg:#5a4300;
-  --good:#17784a; --good-soft:#e1f5e9; --bad:#b4302b; --bad-soft:#fbe6e4;
-  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
-  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
-  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --bg:#eef2ee; --surface:#ffffff; --fg:#17201b; --muted:#5d6a63; --line:#d3ddd6;
+  --nim:#d2552c; --nim-soft:#fbe5dc; --jim:#2c6fb0; --jim-soft:#dde9f6;
+  --good:#1e7d4b; --bad:#b33a2f;
+  --f-display:"Bowlby One", Impact, "Arial Black", sans-serif;
+  --f-body:"Figtree", "Segoe UI", system-ui, sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0e1513; --surface:#16201d; --fg:#e4ece9; --muted:#9db0a9; --line:#283632;
-  --accent:#5fd3ad; --accent-soft:#16352c; --code-bg:#09100e; --code-fg:#e6f0ec;
-  --trap:#2e2711; --trap-line:#a8862b; --trap-fg:#f3dc9c;
-  --good:#5fd394; --good-soft:#123222; --bad:#ff8a80; --bad-soft:#3a1716; color-scheme:dark}}
+  --bg:#101613; --surface:#18211c; --fg:#e8efea; --muted:#9fb0a6; --line:#2a362f;
+  --nim:#ff8a5c; --nim-soft:#3a2219; --jim:#6aa8ec; --jim-soft:#182a3d;
+  --good:#5fd394; --bad:#ff8a80; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0e1513; --surface:#16201d; --fg:#e4ece9; --muted:#9db0a9; --line:#283632;
-  --accent:#5fd3ad; --accent-soft:#16352c; --code-bg:#09100e; --code-fg:#e6f0ec;
-  --trap:#2e2711; --trap-line:#a8862b; --trap-fg:#f3dc9c;
-  --good:#5fd394; --good-soft:#123222; --bad:#ff8a80; --bad-soft:#3a1716; color-scheme:dark}
+  --bg:#101613; --surface:#18211c; --fg:#e8efea; --muted:#9fb0a6; --line:#2a362f;
+  --nim:#ff8a5c; --nim-soft:#3a2219; --jim:#6aa8ec; --jim-soft:#182a3d;
+  --good:#5fd394; --bad:#ff8a80; color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.55;padding-inline:16px;padding-block:0 64px}
-.wrap{max-width:780px;margin:0 auto}
-header.top{padding-block:36px 14px}
-.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-h1{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,6vw,44px);line-height:1.05;margin:.25em 0 .3em;text-wrap:balance}
-.lede{color:var(--muted);max-width:62ch;margin:0}
-nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;border-bottom:1px solid var(--line);margin-bottom:8px}
-nav.toc .row{display:flex;gap:6px;flex-wrap:wrap}
-nav.toc a{font-family:var(--f-mono);font-size:13px;text-decoration:none;color:var(--fg);border:1px solid var(--line);background:var(--surface);padding:4px 10px;border-radius:999px}
-nav.toc a:hover,nav.toc a:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
-nav.toc a.go{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
-section{padding-block:22px 6px}
-section.lesson{border-bottom:1px solid var(--line)}
-h2{font-family:var(--f-display);font-weight:600;font-size:24px;line-height:1.2;margin:0 0 10px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;text-wrap:balance}
-h2 .num{font-family:var(--f-mono);font-size:15px;color:var(--accent);font-weight:600}
-.tag{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:4px;background:var(--accent-soft);color:var(--accent)}
-ul,ol{padding-left:1.3em;margin:.4em 0}
-li{margin:.3em 0}
-code{font-family:var(--f-mono);font-size:.88em;background:var(--accent-soft);padding:1px 5px;border-radius:4px}
-pre{font-family:var(--f-mono);font-size:14px;line-height:1.5;background:var(--code-bg);color:var(--code-fg);padding:12px 14px;border-radius:8px;overflow-x:auto;margin:10px 0}
-pre code{background:none;padding:0;font-size:inherit;color:inherit}
-.c{color:#8fa59c}
-.trap{background:var(--trap);border-left:4px solid var(--trap-line);color:var(--trap-fg);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
-.trap b.h{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:2px}
-.tbl{overflow-x:auto;margin:10px 0}
-table{border-collapse:collapse;font-size:15px;min-width:100%}
-th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-family:var(--f-mono);font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
-td code{white-space:nowrap}
-.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:17px;line-height:1.55;padding-inline:16px;padding-block:0 64px}
+.wrap{max-width:960px;margin:0 auto}
+img{max-width:100%;display:block}
 
-.plan{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-top:6px}
-.plan ol{counter-reset:s;list-style:none;padding:0;display:grid;gap:12px}
-.plan li{display:grid;grid-template-columns:auto 1fr;gap:12px;margin:0}
-.plan li::before{counter-increment:s;content:counter(s);font-family:var(--f-mono);font-weight:600;color:var(--accent);border:1px solid var(--accent);border-radius:50%;width:26px;height:26px;display:grid;place-items:center;font-size:13px}
-.plan li div{min-width:0}
-.plan .t{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
-.why{font-size:14px;color:var(--muted);margin-top:12px}
-.why a{color:var(--accent)}
+header{padding-block:48px 28px;text-align:center}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:400;font-size:clamp(56px,14vw,128px);line-height:.9;margin:.15em 0 .2em;letter-spacing:-.01em}
+h1 .n{color:var(--nim)} h1 .j{color:var(--jim)} h1 .amp{color:var(--muted);font-size:.55em;vertical-align:.25em}
+.tag{font-size:19px;color:var(--muted);margin:0;text-wrap:balance}
 
-.scorebar{position:sticky;top:calc(env(safe-area-inset-top,0px) + 52px);z-index:4;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:12px 0 18px}
-.scorebar .s{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
-.btns{display:flex;gap:6px;flex-wrap:wrap}
-.scorebar button{font:inherit;font-family:var(--f-mono);font-size:13px;background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer}
-.scorebar button:hover,.scorebar button:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
-.scorebar button.on{background:var(--accent);color:var(--bg);border-color:var(--accent)}
-.empty{color:var(--muted);padding:12px 0}
-.frq{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin:0 0 16px}
-.frq h3{font-family:var(--f-display);font-weight:600;font-size:19px;margin:0 0 6px}
-.part{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
-.part .pl{font-family:var(--f-mono);font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.05em}
-.part textarea{width:100%;min-height:120px;font-family:var(--f-mono);font-size:14px;line-height:1.5;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical;margin-top:6px}
-.part textarea:focus-visible{outline:none;border-color:var(--accent)}
-.part .show{font:inherit;font-family:var(--f-mono);font-size:13px;background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:5px 10px;cursor:pointer;margin-top:8px}
-.part .show:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.rubric{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:6px}
-.rubric label{display:flex;gap:8px;align-items:flex-start;cursor:pointer}
-.rubric input{margin-top:4px;accent-color:var(--accent)}
-.q{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin:0 0 14px}
-.q .meta{display:flex;gap:8px;align-items:center;margin-bottom:6px}
-.q .meta .n{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
-.q .meta a{font-family:var(--f-mono);font-size:12px;color:var(--muted);margin-left:auto}
-.q p{margin:.2em 0 .5em}
-.opts{display:grid;gap:8px;margin-top:8px}
-.opt{font:inherit;text-align:left;width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer;display:flex;gap:10px;align-items:flex-start;min-width:0}
-.opt .k{font-family:var(--f-mono);font-size:13px;color:var(--muted);flex:none;padding-top:1px}
-.opt .v{min-width:0;overflow-x:auto}
-.opt .v.code{font-family:var(--f-mono);font-size:14px;white-space:pre}
-.opt:hover:not([disabled]),.opt:focus-visible{border-color:var(--accent);outline:none}
-.opt[disabled]{cursor:default}
-.opt.right{border-color:var(--good);background:var(--good-soft)}
-.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
-.explain{margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);font-size:15px}
-.verdict{font-weight:700}
-.verdict.ok{color:var(--good)} .verdict.no{color:var(--bad)}
-footer{color:var(--muted);font-size:14px;padding-top:24px}
-@media (prefers-reduced-motion:no-preference){.opt{transition:border-color .12s,background .12s}}
+h2{font-family:var(--f-display);font-weight:400;font-size:clamp(28px,5vw,38px);line-height:1.05;margin:0 0 14px;text-wrap:balance}
+section{padding-block:36px 8px}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+.card{background:var(--surface);border:3px solid var(--c);border-radius:16px;overflow:hidden;min-width:0}
+.card.nim{--c:var(--nim);--cs:var(--nim-soft)} .card.jim{--c:var(--jim);--cs:var(--jim-soft)}
+.card .top{background:var(--c);color:#fff;display:flex;justify-content:space-between;align-items:baseline;padding:10px 16px}
+.card .top b{font-family:var(--f-display);font-weight:400;font-size:34px;line-height:1}
+.card .top span{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.9}
+.pics{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px;background:var(--cs)}
+.pics img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px}
+.notes{padding:14px 16px 18px;display:grid;gap:10px}
+.note{display:grid;grid-template-columns:8.5em 1fr;gap:10px;align-items:baseline}
+.note dt{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
+.note dd{margin:0}
+.meter{height:10px;border-radius:99px;background:var(--cs);overflow:hidden;margin-top:6px}
+.meter i{display:block;height:100%;background:var(--c);border-radius:99px}
+
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:460px}
+th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+th.n{color:var(--nim)} th.j{color:var(--jim)}
+td:first-child{font-weight:600}
+
+.game{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:grid;grid-template-columns:minmax(0,260px) 1fr;gap:22px;align-items:center}
+@media (max-width:600px){.game{grid-template-columns:1fr}}
+.game img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;background:var(--line)}
+.round{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.q{font-family:var(--f-display);font-size:30px;line-height:1.1;margin:.2em 0 .5em}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btns button{font:inherit;font-weight:800;font-size:18px;color:#fff;border:0;border-radius:12px;padding:12px 24px;cursor:pointer}
+.btns button:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.b-nim{background:var(--nim)} .b-jim{background:var(--jim)}
+.btns button[disabled]{opacity:.45;cursor:default}
+.fb{min-height:1.6em;font-weight:600;margin-top:12px}
+.fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.next{font:inherit;font-weight:700;background:transparent;color:var(--fg);border:2px solid var(--line);border-radius:10px;padding:8px 16px;cursor:pointer;margin-top:6px}
+.next:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+
+footer{color:var(--muted);font-size:14px;text-align:center;padding-top:40px}
+@media (prefers-reduced-motion:no-preference){.btns button{transition:transform .1s} .btns button:active{transform:scale(.97)}}
 </style>
 </head>
 <body>
-
 <div class="wrap">
-<header class="top">
-  <div class="eyebrow">AP CSA · Unit 1 Part B · Lessons 1.9–1.15</div>
-  <h1>Methods, Objects &amp; Strings Review</h1>
-  <p class="lede">Built around the two study methods with the strongest research behind them: testing yourself and spacing it out. Take the test first, then use the notes to fix what you missed.</p>
+
+<header>
+  <div class="eyebrow">slimnimjim.com · the official site</div>
+  <h1><span class="n">Nim</span> <span class="amp">&amp;</span> <span class="j">Jim</span></h1>
+  <p class="tag">Twin cousins. Two very different hairstyles. One website.</p>
 </header>
 
-<nav class="toc" aria-label="Sections"><div class="row">
-  <a href="#plan">Plan</a><a href="#test" class="go">Test →</a><a href="#frq">FRQ</a><a href="#l19">1.9</a><a href="#l110">1.10</a><a href="#l111">1.11</a><a href="#l112">1.12</a><a href="#l113">1.13</a><a href="#l114">1.14</a><a href="#l115">1.15</a>
-</div></nav>
-
-<section id="plan">
-  <h2>Tonight's plan</h2>
-  <div class="plan"><ol>
-    <li><div><b>Take the test cold.</b> <span class="t">~30 min</span><br>Don't read the notes first. Work each question on paper before tapping, especially the tracing ones. Getting answers wrong now is part of how this works: trying to recall before you look makes the right answer stick better.</div></li>
-    <li><div><b>Fix only what you missed.</b> <span class="t">~20 min</span><br>Each question links to its lesson notes. For every miss, say out loud <i>why</i> the right answer is right. Skip rereading the lessons you already got right.</div></li>
-    <li><div><b>Retry your misses.</b> <span class="t">~10 min</span><br>Hit <b>Retry missed</b>. The page remembers which ones you got wrong in this browser.</div></li>
-    <li><div><b>Write one FRQ on paper.</b> <span class="t">~15 min</span><br>Pick the one that covers what you missed most, write it by hand, then grade yourself with the rubric. Do the others tomorrow if you have time.</div></li>
-    <li><div><b>Stop and sleep.</b><br>Sleep is when the brain locks in what you studied. An extra hour of cramming costs more than it gives.</div></li>
-    <li><div><b>Tomorrow morning: retry missed once more.</b> <span class="t">~10 min</span><br>A short second round after a gap (spacing) beats one long session.</div></li>
-  </ol>
-  <p class="why">Why this order: a large review of study techniques (<a href="https://www.psychologicalscience.org/news/releases/which-study-strategies-make-the-grade.html">Dunlosky et al., 2013</a>) rated practice testing and spaced practice as the two most effective methods, and rated rereading and highlighting as low value. The test also mixes lessons together instead of going in order, because the real test won't tell you which lesson a question comes from.</p>
+<section aria-label="Meet the twins">
+  <div class="cards">
+    <article class="card nim">
+      <div class="top"><b>NIM</b><span>Twin #1</span></div>
+      <div class="pics"><img src="nim-1.jpg" alt="Nim, curly hair, pointing at his forehead"><img src="nim-2.jpg" alt="Nim, curly hair, serious selfie"></div>
+      <dl class="notes">
+        <div class="note"><dt>Hair</dt><dd>Curly. Maximum volume.<div class="meter" aria-hidden="true"><i style="width:100%"></i></div></dd></div>
+        <div class="note"><dt>Signature look</dt><dd>The serious selfie stare</dd></div>
+        <div class="note"><dt>Best angle</dt><dd>Straight into the front camera</dd></div>
+      </dl>
+    </article>
+    <article class="card jim">
+      <div class="top"><b>JIM</b><span>Twin #2</span></div>
+      <div class="pics"><img src="jim-1.jpg" alt="Jim on a boat holding a big trout"><img src="jim-2.jpg" alt="Jim grinning with a thumbs up"></div>
+      <dl class="notes">
+        <div class="note"><dt>Hair</dt><dd>Straight, with a swoop<div class="meter" aria-hidden="true"><i style="width:35%"></i></div></dd></div>
+        <div class="note"><dt>Signature look</dt><dd>Full grin, thumbs up</dd></div>
+        <div class="note"><dt>Achievement</dt><dd>Caught a fish (photo evidence on file)</dd></div>
+      </dl>
+    </article>
   </div>
 </section>
 
-<section id="test">
-  <h2><span class="num">✓</span> Mixed practice test</h2>
-  <p class="lede">32 questions, lessons mixed. Tap an answer to check it.</p>
-  <div class="scorebar" role="status" aria-live="polite">
-    <span class="s" id="score"></span>
-    <div class="btns">
-      <button type="button" id="fAll" class="on">All</button>
-      <button type="button" id="fMiss">Retry missed</button>
-      <button type="button" id="reset">Reset</button>
+<section aria-labelledby="apart">
+  <h2 id="apart">How to tell them apart</h2>
+  <div class="tbl"><table>
+    <tr><th></th><th class="n">Nim</th><th class="j">Jim</th></tr>
+    <tr><td>Hair</td><td>Curly</td><td>Straight</td></tr>
+    <tr><td>Default face</td><td>Serious</td><td>Grinning</td></tr>
+    <tr><td>Natural habitat</td><td>In front of the camera</td><td>On a boat</td></tr>
+    <tr><td>Most likely to be holding</td><td>The phone</td><td>A fish</td></tr>
+  </table></div>
+</section>
+
+<section aria-labelledby="game">
+  <h2 id="game">Nim or Jim?</h2>
+  <div class="game">
+    <img id="gImg" src="nim-1.jpg" alt="A photo of one of the twins">
+    <div>
+      <div class="round" id="gRound">Round 1 of 4</div>
+      <div class="q" id="gQ">Who's this?</div>
+      <div class="btns"><button class="b-nim" id="bNim" type="button">Nim</button><button class="b-jim" id="bJim" type="button">Jim</button></div>
+      <div class="fb" id="gFb" role="status" aria-live="polite"></div>
+      <button class="next" id="gNext" type="button" hidden>Next photo</button>
     </div>
   </div>
-  <div id="qs"></div>
 </section>
 
-<section id="frq">
-  <h2><span class="num">✎</span> Free response</h2>
-  <p class="lede">Write the code yourself. Do it on paper if your test is on paper; typing with autocomplete hides mistakes. Then open the sample solution and check off each rubric point you earned. Any correct solution counts, even if it doesn't match the sample.</p>
-  <div class="scorebar"><span class="s" id="frqScore"></span><div class="btns"><button type="button" id="frqReset">Clear FRQ answers</button></div></div>
-  <div id="frqs"></div>
-</section>
-
-<section class="lesson" id="l19">
-  <h2><span class="num">1.9</span> Method Signatures</h2>
-  <ul>
-    <li>A <b>method</b> is a named block of code that runs when it's <b>called</b>. Use one when code repeats.</li>
-    <li><b>Procedural abstraction</b>: you can use a method by knowing <i>what</i> it does, without knowing <i>how</i>.</li>
-    <li><b>Parameter</b> = variable in the method header. <b>Argument</b> = value you pass in the call. In <code>add(3, 4)</code>, 3 and 4 are arguments; in <code>add(int a, int b)</code>, a and b are parameters.</li>
-    <li><b>Signature</b> = method name + ordered list of parameter types. <code>calc(int, double)</code>. Return type and parameter names are <b>not</b> part of it.</li>
-    <li>Arguments must match the parameters in <b>number, order, and type</b>. An int argument can go into a double parameter, but not the reverse.</li>
-    <li><b>Call by value</b>: the parameter gets a <i>copy</i> of the argument. Changing the parameter inside the method doesn't change the caller's variable.</li>
-    <li><b>Overloading</b>: same name, different signatures (different number, types, or order of parameters).</li>
-    <li><b>Flow of control</b>: a call jumps into the method, runs all of it, then comes back to the line right after the call.</li>
-    <li><b>void</b> methods return nothing. <b>Non-void</b> methods return a value of the return type, which you should store, print, or use.</li>
-  </ul>
-  <div class="trap"><b class="h">Trap</b>Changing only the return type is <b>not</b> overloading. <code>int f(int x)</code> and <code>double f(int x)</code> have the same signature, so that's a compile error.</div>
-</section>
-
-<section class="lesson" id="l110">
-  <h2><span class="num">1.10</span> Calling Class Methods</h2>
-  <ul>
-    <li><b>Class methods</b> (also called <b>static methods</b>) have <code>static</code> in the header and belong to the class, not to an object.</li>
-    <li>Header pattern: <code>public static returnType name(parameters)</code></li>
-    <li>Call them with the class name: <code>ClassName.method()</code>. Inside the same class, the class name is optional.</li>
-    <li>You can't print or store the result of a <code>void</code> method: <code>System.out.println(sayHi());</code> is a compile error if <code>sayHi</code> is void.</li>
-    <li>The variable that receives a return value needs a compatible type: <code>int x = methodReturningDouble();</code> is an error.</li>
-  </ul>
-</section>
-
-<section class="lesson" id="l111">
-  <h2><span class="num">1.11</span> The Math Class</h2>
-  <p><code>Math</code> is in <code>java.lang</code>, so no import is needed. All its methods are static: <code>Math.method()</code>.</p>
-  <div class="tbl"><table>
-    <tr><th>Method</th><th>Returns</th><th>Example</th></tr>
-    <tr><td><code>Math.abs(int)</code> / <code>Math.abs(double)</code></td><td>Absolute value, same type as input</td><td><code>Math.abs(-3)</code> → <span class="mono">3</span></td></tr>
-    <tr><td><code>Math.pow(double, double)</code></td><td>double: first to the power of second</td><td><code>Math.pow(2, 3)</code> → <span class="mono">8.0</span></td></tr>
-    <tr><td><code>Math.sqrt(double)</code></td><td>double: positive square root</td><td><code>Math.sqrt(16)</code> → <span class="mono">4.0</span></td></tr>
-    <tr><td><code>Math.random()</code></td><td>double ≥ 0.0 and &lt; 1.0</td><td>never exactly 1.0</td></tr>
-  </table></div>
-  <p><b>Random int from min to max (inclusive):</b></p>
-<pre><code>(int)(Math.random() * range) + min      <span class="c">// range = max - min + 1</span>
-(int)(Math.random() * 6) + 5            <span class="c">// 5 to 10  (range = 10 - 5 + 1 = 6)</span>
-(int)(Math.random() * 20) + 10          <span class="c">// 10 to 29 (biggest is 19 + 10)</span></code></pre>
-  <div class="trap"><b class="h">Trap</b><code>pow</code> and <code>sqrt</code> always return a <b>double</b>, so they print with <code>.0</code> and can't be stored in an int without a cast. Also: the parentheses in <code>(int)(Math.random() * 6)</code> matter. <code>(int) Math.random() * 6</code> casts first, which is always 0.</div>
-</section>
-
-<section class="lesson" id="l112">
-  <h2><span class="num">1.12</span> Objects: Instances of Classes</h2>
-  <ul>
-    <li>A <b>class</b> is the blueprint; it defines a new type. An <b>object</b> is one specific <b>instance</b> of a class.</li>
-    <li><code>Dog pet = new Dog();</code> → <code>Dog</code> is the class, <code>pet</code> is the object (instance).</li>
-    <li>A reference-type variable holds a <b>reference</b> (think: memory address) to the object, or <code>null</code>.</li>
-    <li><b>Attributes / instance variables</b> = what an object knows (name, age). <b>Behaviors / methods</b> = what it can do.</li>
-    <li><b>Inheritance</b>: a <b>subclass</b> <code>extends</code> a <b>superclass</b> and gets its attributes and behaviors. <code>class Poodle extends Dog</code> → Poodle is the subclass. Every class is a subclass of <code>Object</code>.</li>
-  </ul>
-  <div class="trap"><b class="h">Trap</b>"An instance of the pet class is Dog" has it backwards. The object is an instance <i>of</i> the class. Read these answer choices slowly.</div>
-</section>
-
-<section class="lesson" id="l113">
-  <h2><span class="num">1.13</span> Creating &amp; Initializing Objects</h2>
-  <ul>
-    <li>A <b>constructor</b> builds a new object and sets its attributes. It has the <b>same name as the class</b> and <b>no return type</b>.</li>
-    <li>Call it with <code>new</code>: <code>Movie m = new Movie("Up", "Docter", 8.3);</code></li>
-    <li><b>Overloaded constructors</b> differ in number, type, or order of parameters. A <b>no-argument constructor</b> takes nothing: <code>new Cat()</code>.</li>
-    <li>Arguments must match one constructor's parameter list in number, order, and type. If none matches, it won't compile.</li>
-    <li>Arguments are passed by value, same as methods.</li>
-  </ul>
-<pre><code>public Cat()                                 <span class="c">// no-arg</span>
-public Cat(String c, String b, boolean h)    <span class="c">// 3 args</span>
-
-new Cat();                          <span class="c">// ✓</span>
-new Cat("orange", "Tabby", false);  <span class="c">// ✓</span>
-new Cat("Shorthair", true);         <span class="c">// ✗ no 2-arg constructor</span>
-Cat("orange", "Tabby", false);      <span class="c">// ✗ missing new</span></code></pre>
-</section>
-
-<section class="lesson" id="l114">
-  <h2><span class="num">1.14</span> Calling Instance Methods</h2>
-  <ul>
-    <li><b>Instance methods</b> (no <code>static</code>) are called on an object with the dot operator: <code>myParty.inviteFriend();</code></li>
-    <li>You need an object first. <code>Cat.meow()</code> doesn't work if <code>meow</code> is an instance method.</li>
-    <li>Calling a method on <code>null</code> → <b><code>NullPointerException</code></b> (run-time error).</li>
-    <li>Arguments must match the signature. Parentheses are required even with no arguments.</li>
-    <li>Do something with a non-void method's return value: store it, print it, or use it in an expression.</li>
-  </ul>
-<div class="tbl"><table>
-  <tr><th></th><th>Class (static) method</th><th>Instance method</th></tr>
-  <tr><td>Header</td><td><code>public static void go()</code></td><td><code>public void go()</code></td></tr>
-  <tr><td>Call</td><td><code>ClassName.go()</code></td><td><code>obj.go()</code></td></tr>
-  <tr><td>Needs an object?</td><td>No</td><td>Yes</td></tr>
-</table></div>
-</section>
-
-<section class="lesson" id="l115">
-  <h2><span class="num">1.15</span> Strings <span class="tag">heavy</span></h2>
-  <ul>
-    <li>Create with a literal <code>"hi"</code> or <code>new String("hi")</code>. String is in <code>java.lang</code>.</li>
-    <li>Strings are <b>immutable</b>. Methods like <code>substring</code> return a <i>new</i> String; the original never changes.</li>
-    <li>Indexes go from <code>0</code> to <code>length() - 1</code>. Going outside → <code>IndexOutOfBoundsException</code>.</li>
-    <li><code>+</code> concatenates. A primitive joined with a String becomes text. Evaluated left to right.</li>
-    <li>Compare contents with <code>.equals</code>, not <code>==</code>.</li>
-  </ul>
-  <div class="tbl"><table>
-    <tr><th>Method (on Quick Reference)</th><th>Example with <code>s = "computer"</code></th><th>Result</th></tr>
-    <tr><td><code>length()</code></td><td><code>s.length()</code></td><td class="mono">8</td></tr>
-    <tr><td><code>substring(from, to)</code><br><small>to is <b>not</b> included</small></td><td><code>s.substring(2, 5)</code></td><td class="mono">"mpu"</td></tr>
-    <tr><td><code>substring(from)</code></td><td><code>s.substring(3)</code></td><td class="mono">"puter"</td></tr>
-    <tr><td><code>substring(i, i + 1)</code></td><td><code>s.substring(0, 1)</code></td><td class="mono">"c"</td></tr>
-    <tr><td><code>indexOf(str)</code></td><td><code>s.indexOf("t")</code> / <code>s.indexOf("z")</code></td><td class="mono">5 / -1</td></tr>
-    <tr><td><code>equals(other)</code></td><td><code>s.equals("Computer")</code></td><td class="mono">false</td></tr>
-    <tr><td><code>compareTo(other)</code></td><td><code>"apple".compareTo("banana")</code></td><td>negative (a comes first)</td></tr>
-  </table></div>
-<pre><code><span class="c">// index:  c=0 o=1 m=2 p=3 u=4 t=5 e=6 r=7</span>
-1 + 2 + "3" + 4 + 5     <span class="c">// 3 → "33" → "334" → "3345"</span>
-"1" + 2 + 3             <span class="c">// "12" → "123"</span>
-"Java".substring(4)     <span class="c">// "" (empty; from == length is allowed)</span>
-"Java".substring(1, 5)  <span class="c">// IndexOutOfBoundsException (5 > length)</span></code></pre>
-  <div class="trap"><b class="h">How to do substring questions</b>Write the word out and number every letter, starting at 0, before you answer. <code>substring(a, b)</code> gives <code>b - a</code> characters.</div>
-</section>
-
-<footer>Based on CSAwesome lessons 1.9–1.15 from your class screenshots. Practice questions are new versions of the lesson-style questions.</footer>
+<footer>Posted with Nim and Jim's permission. More facts coming soon.</footer>
 </div>
 
 <script>
-const Q = [
- {s:"1.15", p:"What is the value of s2?", code:'String s1 = "hi there";\nint pos = s1.indexOf("e");\nString s2 = s1.substring(0, pos);', o:["hi th","hi the","hi ther","hi there"], a:0,
-  e:'Number it: h0 i1 (space)2 t3 h4 e5. pos is 5, and substring(0, 5) stops before index 5: "hi th".'},
- {s:"1.11", p:"Which expression gives a random int from 5 to 10, inclusive?", o:["(int)(Math.random() * 5) + 5","(int)(Math.random() * 6) + 5","(int)(Math.random() * 10) + 5","(int) Math.random() * 6 + 5"], a:1,
-  e:"range = max - min + 1 = 10 - 5 + 1 = 6. Multiplying by 5 only reaches 9. (int) Math.random() * 6 casts first, which is always 0, so it always gives 5."},
- {s:"1.13", p:"Which line creates a Movie with title \"Up\" and rating 8.0?", code:'public Movie(String t, String d, double r) { ... }\npublic Movie(String t) { ... }', o:['Movie m = Movie("Up", "Docter", 8.0);','Movie m = new Movie(8.0, "Up");','Movie m = new Movie("Up", "Docter", 8.0);','Movie m = new Movie("Up", 8.0);'], a:2,
-  e:"Needs new, and the arguments must match a constructor in number, order, and type. There's no (String, double) constructor, and (8.0, \"Up\") is in the wrong order."},
- {s:"1.9", p:"What is printed?", code:'public static void a() {\n  System.out.print("A");\n  b();\n  System.out.print("C");\n}\npublic static void b() { System.out.print("B"); }\n\n// in main:\na();\nSystem.out.print("D");', o:["ACBD","ABCD","ABDC","BACD"], a:1,
-  e:"a() prints A, jumps into b() which prints B, comes back and prints C. Then main prints D."},
- {s:"1.15", p:"What is printed?", code:'System.out.println(1 + 2 + "3" + 4 + 5);', o:["15","3345","12345","339"], a:1,
-  e:'Left to right: 1 + 2 = 3 (math). 3 + "3" = "33" (now a String). Then "334", then "3345".'},
- {s:"1.14", p:"From a class other than Cat, which prints \"purr Meow \"?", code:'public class Cat {\n  public void meow() { System.out.print("Meow "); }\n  public void purr() { System.out.print("purr "); }\n  public void welcomeHome() { purr(); meow(); }\n}', o:["Cat.welcomeHome();","Cat a = new Cat();\na.welcomeHome();","welcomeHome();","Cat a = new Cat();\na.meow();\na.purr();"], a:1, codeOpts:true,
-  e:"These are instance methods (no static), so you need an object and the dot operator. Calling meow() then purr() prints them in the wrong order."},
- {s:"1.10", p:"Which line compiles, given this method in the same class?", code:"public static double calc(int people, double slices)", o:["int r = calc(45, 9.0);","double r = calc(45.0, 9.0);","double r = calc(45, 9.0);","double r = calc(9.0, 45);"], a:2,
-  e:"It returns a double, so it can't be stored in an int. The first parameter is an int, so 45.0 or 9.0 can't go there. Order matters."},
- {s:"1.11", p:"What is printed?", code:"System.out.println(Math.sqrt(16) + Math.abs(-3));", o:["7","7.0","1.0","19.0"], a:1,
-  e:"sqrt returns a double: 4.0. abs(-3) is 3. 4.0 + 3 = 7.0."},
- {s:"1.15", p:"After this runs, what is s1?", code:'String s1 = "Hi";\nString s2 = s1.substring(0, 1);\nString s3 = s2.toLowerCase();', o:["Hi","hi","H","h"], a:0,
-  e:"Strings are immutable. substring and toLowerCase return new Strings; s1 is never changed."},
- {s:"1.9", p:"A class already has public void show(int a). Which method could also be added (overloading)?", o:["public void show(int b)","public int show(int a)","public void show(String a)","public void show(int a) with a different body"], a:2,
-  e:"Overloads need a different parameter list. Renaming the parameter or changing only the return type keeps the same signature."},
- {s:"1.12", p:"Dog pet = new Dog(); Which is accurate?", o:["Dog is an instance of pet","pet is an instance of the Dog class","pet is an attribute of Dog","Dog is an object"], a:1,
-  e:"The class is the blueprint (Dog). The object made from it (pet) is an instance."},
- {s:"1.15", p:"What is printed?", code:'System.out.println("banana".indexOf("na") + "banana".indexOf("z"));', o:["1","2","2-1","3"], a:0,
-  e:'"na" first appears at index 2. "z" isn\'t found → -1. Both are ints, so 2 + (-1) = 1.'},
- {s:"1.13", p:"Which lines create a Cat?", code:'public Cat() { ... }\npublic Cat(String c, String b, boolean h) { ... }\n\nI.   Cat a = new Cat();\nII.  Cat b = new Cat("Shorthair", true);\nIII. String color = "orange";\n     boolean hungry = false;\n     Cat c = new Cat(color, "Tabby", hungry);', o:["I only","I and II","I and III","I, II, and III"], a:2,
-  e:"II passes 2 arguments, but no constructor takes 2. III passes variables of the right types in the right order, which works."},
- {s:"1.9", p:"What is printed?", code:"public static void change(int x) { x = 10; }\n\n// in main:\nint n = 5;\nchange(n);\nSystem.out.println(n);", o:["5","10","0","Compile error"], a:0,
-  e:"Call by value: x is a copy of n. Changing x doesn't touch n."},
- {s:"1.11", p:"Which correctly computes the hypotenuse of a right triangle with legs a and b?", o:["Math.sqrt(a + b)","a * a + b * b","Math.sqrt(a * a + b * b)","Math.pow(a + b, 2)"], a:2,
-  e:"c = √(a² + b²). Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2)) also works."},
- {s:"1.14", p:"What happens?", code:'String s = null;\nSystem.out.println(s.length());', o:["Prints 0","Prints null","Compile error","NullPointerException"], a:3,
-  e:"It compiles, but calling a method on null crashes at run time with a NullPointerException."},
- {s:"1.15", p:'String s = "Java"; Which throws an IndexOutOfBoundsException?', o:["s.substring(4)","s.substring(0, 4)","s.substring(1, 5)","s.substring(2, 2)"], a:2,
-  e:'Length is 4, so the "to" index can be at most 4. substring(4) and substring(2, 2) give "", and substring(0, 4) gives "Java".'},
- {s:"1.10", p:"Which line causes a compile error?", o:["double a = Math.sqrt(25);","int b = (int) Math.sqrt(25);","int c = Math.sqrt(25);","double d = Math.abs(-5);"], a:2,
-  e:"sqrt returns a double, which can't go into an int without a cast. Math.abs(-5) returns an int, which widens to double just fine."},
- {s:"1.14", p:"myParty is a Party object, used from another class. Which is valid?", code:"public class Party {\n  private int numInvited;\n  public Party() { numInvited = 1; }\n  public void inviteFriend() { numInvited++; }\n  public void cancelParty() { ... }\n}", o:["myParty.inviteFriend(2);","System.out.println(myParty.cancelParty());","myParty.inviteFriend();","myParty.numInvited();"], a:2,
-  e:"inviteFriend takes no arguments, so passing 2 fails. cancelParty is void, so there's nothing to print. numInvited is a variable, not a method."},
- {s:"1.9", p:"In the call add(3, 4) to the method add(int a, int b), what are 3 and 4?", o:["Parameters","Arguments","Return values","Signatures"], a:1,
-  e:"Arguments are the values passed in the call. Parameters (a, b) are the variables in the header."},
- {s:"1.15", p:'What is "computer".substring(2, 5)?', o:['"omp"','"mpu"','"mput"','"mpute"'], a:1,
-  e:"c0 o1 m2 p3 u4 t5. From index 2 up to but not including 5: m, p, u."},
- {s:"1.11", p:"(int)(Math.random() * 20) + 10 produces numbers in what range?", o:["10 to 30","10 to 29","0 to 20","10 to 20"], a:1,
-  e:"(int)(Math.random() * 20) gives 0 to 19. Adding 10 gives 10 to 29."},
- {s:"1.12", p:"class Poodle extends Dog. Which is true?", o:["Dog is a subclass of Poodle","Poodle is a subclass of Dog","Poodle and Dog are unrelated","Dog inherits from Poodle"], a:1,
-  e:"The class that extends is the subclass. Poodle inherits Dog's attributes and behaviors."},
- {s:"1.13", p:"Which is true about constructors?", o:["They must have at least one parameter","They have the same name as the class and no return type","They are called with the dot operator","A class can have only one"], a:1,
-  e:"Constructors are named after the class, have no return type (not even void), are called with new, and can be overloaded."},
- {s:"1.15", p:'What is "AP CSA!".length()?', o:["5","6","7","8"], a:2,
-  e:"A, P, space, C, S, A, ! → 7. Spaces and punctuation count."},
- {s:"1.10", p:"A static method greet() is defined in class Helper. How do you call it from a different class?", o:["greet();","Helper.greet();","new greet();","Helper h; h.greet;"], a:1,
-  e:"Class methods are called with the class name and dot. Leaving the class name off only works inside Helper."},
- {s:"1.9", p:"Which of these prints \"hmm woof hmm \"?", code:'public static void bark()  { System.out.print("woof "); }\npublic static void whine() { System.out.print("hmm "); }\npublic static void greet() { whine(); bark(); }', o:["greet();","greet();\nwhine();","whine()\nbark();\nwhine();","whine();\nwoof();\nwhine();"], a:1, codeOpts:true,
-  e:"greet() prints \"hmm woof \", then whine() adds \"hmm \". The whine() bark() whine() option is missing a semicolon, and there's no woof() method."},
- {s:"1.15", p:'"apple".compareTo("banana") returns:', o:["A negative number","0","A positive number","false"], a:0,
-  e:'"apple" comes before "banana" alphabetically, so the result is negative. 0 means equal.'},
- {s:"1.11", p:"What is printed?", code:"System.out.println(Math.pow(2, 3));", o:["8","8.0","6.0","9.0"], a:1,
-  e:"pow always returns a double, so it prints 8.0."},
- {s:"1.15", p:'Which correctly checks whether name holds the same characters as "Sam"?', o:['name == "Sam"','name.equals("Sam")','name = "Sam"','name.compareTo("Sam") == 1'], a:1,
-  e:"Use .equals to compare String contents. == checks whether two references point to the same object. compareTo returns 0 when equal."},
- {s:"1.15", p:"What is printed?", code:'String w = "hello";\nw.substring(1);\nSystem.out.println(w);', o:["ello","hello","h","Error"], a:1,
-  e:"The new String from substring is thrown away because it isn't stored. w is unchanged. To keep it: w = w.substring(1);"},
- {s:"1.9", p:"Which is part of a method's signature?", o:["The return type","The parameter names","The method name and parameter types in order","The method body"], a:2,
-  e:"Signature = name + ordered parameter types. Return type and parameter names don't count."},
-];
-
-(function(){ let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
-  Q.forEach(q => { const idx = q.o.map((_, k) => k); for (let k = idx.length - 1; k > 0; k--) { const r = Math.floor(rnd() * (k + 1)); [idx[k], idx[r]] = [idx[r], idx[k]]; }
-    q.o = idx.map(k => q.o[k]); q.a = idx.indexOf(q.a); }); })();
-const KEY = "csa1b-review-v2";
-let state = {}; let mode = "all";
-try { state = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch(e) { state = {}; }
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} };
-const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-const qs = document.getElementById("qs");
-const anchor = s => "#l" + s.replace(".","");
-let retrySet = new Set();
-
-function render(){
-  qs.innerHTML = "";
-  let shown = 0;
-  Q.forEach((q,i)=>{
-    if(mode==="miss" && !retrySet.has(i)) return;
-    shown++;
-    const d = document.createElement("div"); d.className = "q";
-    let h = `<div class="meta"><span class="tag">${q.s}</span><span class="n">Q${i+1}</span><a href="${anchor(q.s)}">notes ↓</a></div><p>${esc(q.p)}</p>`;
-    if(q.code) h += `<pre><code>${esc(q.code)}</code></pre>`;
-    h += '<div class="opts">' + q.o.map((o,j)=>`<button class="opt" type="button" id="q${i}o${j}" data-i="${i}" data-j="${j}"><span class="k">${"ABCD"[j]}</span><span class="v${q.codeOpts?" code":""}">${esc(o)}</span></button>`).join("") + "</div>";
-    h += `<div class="explain" id="x${i}" hidden></div>`;
-    d.innerHTML = h; qs.appendChild(d);
-    if(mode==="all" && state[i]!==undefined) mark(i, state[i]);
-  });
-  if(mode==="miss" && shown===0) qs.innerHTML = '<p class="empty">No missed questions to retry. Answer some first, or you got them all.</p>';
-  updateScore();
+const photos=[{s:"jim-2.jpg",w:"Jim"},{s:"nim-2.jpg",w:"Nim"},{s:"jim-1.jpg",w:"Jim"},{s:"nim-1.jpg",w:"Nim"}];
+let order=[],i=0,score=0;
+const $=id=>document.getElementById(id);
+function shuffle(a){a=a.slice();for(let k=a.length-1;k>0;k--){const r=Math.floor(Math.random()*(k+1));[a[k],a[r]]=[a[r],a[k]]}return a}
+function start(){order=shuffle(photos);i=0;score=0;show()}
+function show(){
+  const p=order[i];$("gImg").src=p.s;$("gRound").textContent=`Round ${i+1} of ${order.length}`;
+  $("gQ").textContent="Who's this?";$("gFb").textContent="";$("gFb").className="fb";
+  $("bNim").disabled=$("bJim").disabled=false;$("gNext").hidden=true;
 }
-function mark(i,j){
-  const q = Q[i];
-  q.o.forEach((_,k)=>{
-    const b = document.getElementById(`q${i}o${k}`); if(!b) return;
-    b.disabled = true;
-    if(k===q.a) b.classList.add("right");
-    if(k===j && j!==q.a) b.classList.add("wrong");
-  });
-  const x = document.getElementById("x"+i); const ok = j===q.a;
-  x.innerHTML = `<span class="verdict ${ok?"ok":"no"}">${ok?"Correct.":"Not quite. Answer: "+"ABCD"[q.a]+"."}</span> ${esc(q.e)}`;
-  x.hidden = false;
+function guess(name){
+  const p=order[i],ok=name===p.w;if(ok)score++;
+  $("bNim").disabled=$("bJim").disabled=true;
+  $("gFb").textContent=ok?`Correct, that's ${p.w}.`:`Nope, that's ${p.w}.`;
+  $("gFb").className="fb "+(ok?"ok":"no");
+  const last=i===order.length-1;
+  $("gNext").textContent=last?"See score":"Next photo";$("gNext").hidden=false;
 }
-function updateScore(){
-  const done = Object.keys(state).length;
-  const right = Object.entries(state).filter(([i,j])=>Q[i].a===j).length;
-  const missed = done - right;
-  document.getElementById("score").textContent = mode==="miss"
-    ? `Retrying ${retrySet.size} missed`
-    : `${right} / ${done} correct · ${missed} missed · ${Q.length-done} left`;
-}
-qs.addEventListener("click", e=>{
-  const b = e.target.closest(".opt"); if(!b || b.disabled) return;
-  const i = +b.dataset.i, j = +b.dataset.j;
-  state[i] = j; save(); mark(i,j); updateScore();
+$("bNim").addEventListener("click",()=>guess("Nim"));
+$("bJim").addEventListener("click",()=>guess("Jim"));
+let done=false;
+$("gNext").addEventListener("click",()=>{
+  if(done){done=false;start();return}
+  if(i<order.length-1){i++;show();return}
+  done=true;
+  $("gRound").textContent="Done";
+  $("gQ").textContent=`You got ${score} of ${order.length}.`;
+  $("gFb").textContent=score===order.length?"You can tell them apart. Rare skill.":"Hint: check the hair.";
+  $("gFb").className="fb";
+  $("bNim").disabled=$("bJim").disabled=true;
+  $("gNext").textContent="Play again";
 });
-const fAll = document.getElementById("fAll"), fMiss = document.getElementById("fMiss");
-fAll.addEventListener("click", ()=>{ mode="all"; fAll.classList.add("on"); fMiss.classList.remove("on"); render(); });
-fMiss.addEventListener("click", ()=>{
-  retrySet = new Set(Object.entries(state).filter(([i,j])=>Q[i].a!==j).map(([i])=>+i));
-  retrySet.forEach(i=>delete state[i]); save();
-  mode="miss"; fMiss.classList.add("on"); fAll.classList.remove("on"); render();
-});
-document.getElementById("reset").addEventListener("click", ()=>{ state={}; save(); mode="all"; fAll.classList.add("on"); fMiss.classList.remove("on"); render(); });
-render();
-
-const FRQ = [
- {t:"FRQ 1 · Strings and methods", tags:"1.9 · 1.10 · 1.15",
-  intro:"You are writing static methods in a class called NameTools.",
-  parts:[
-   {l:"(a)", p:'Write makeUsername. It returns the first 3 letters of last, then the first letter of first, then the last two digits of year. makeUsername("Jamie", "Rivera", 2027) returns "RivJ27". Precondition: last has at least 3 letters and year is between 2010 and 2099.',
-    code:"public static String makeUsername(String first, String last, int year)",
-    sol:'public static String makeUsername(String first, String last, int year)\n{\n    return last.substring(0, 3) + first.substring(0, 1) + (year % 100);\n}',
-    rub:["Uses last.substring(0, 3) to get the first 3 letters","Uses first.substring(0, 1) to get the first letter","Gets the last two digits with year % 100 (or equivalent)","Joins the pieces with + in the right order and returns the result (doesn't just print it)"]},
-   {l:"(b)", p:'Write middleLetter. It returns the middle character of word as a String. middleLetter("robot") returns "b". Precondition: word has an odd length.',
-    code:"public static String middleLetter(String word)",
-    sol:'public static String middleLetter(String word)\n{\n    int mid = word.length() / 2;\n    return word.substring(mid, mid + 1);\n}',
-    rub:["Finds the middle index with word.length() / 2 (int division does the work)","Uses substring(mid, mid + 1) to get one character","Returns a String"]},
-   {l:"(c)", p:'Write code in main (same class) that gets the username for first name "Ava", last name "Chen", year 2026, stores it in a variable, and prints it. What does it print?',
-    sol:'String user = makeUsername("Ava", "Chen", 2026);\nSystem.out.println(user);     // prints CheA26',
-    rub:["Calls makeUsername with arguments in the right order and types","Stores the return value in a String variable","Prints it, and the predicted output is CheA26"]}
-  ]},
- {t:"FRQ 2 · The Math class", tags:"1.10 · 1.11",
-  intro:"You are writing static methods in a class called GameMath.",
-  parts:[
-   {l:"(a)", p:"Write randomBetween. It returns a random int from min to max, including both. Precondition: min <= max.",
-    code:"public static int randomBetween(int min, int max)",
-    sol:"public static int randomBetween(int min, int max)\n{\n    return (int)(Math.random() * (max - min + 1)) + min;\n}",
-    rub:["Calls Math.random()","Multiplies by (max - min + 1), not (max - min)","Casts to int around the whole product, before adding min","Adds min and returns the result"]},
-   {l:"(b)", p:"Write distance. It returns the distance between points (x1, y1) and (x2, y2), using the formula √((x2 − x1)² + (y2 − y1)²).",
-    code:"public static double distance(double x1, double y1, double x2, double y2)",
-    sol:"public static double distance(double x1, double y1, double x2, double y2)\n{\n    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));\n}",
-    rub:["Squares both differences (Math.pow(..., 2) or multiplying a value by itself)","Adds the squares before taking the root","Uses Math.sqrt on the sum and returns a double"]}
-  ]},
- {t:"FRQ 3 · Objects and instance methods", tags:"1.12 · 1.13 · 1.14",
-  intro:"Use this class. Assume the code you write is in a different class.",
-  given:"public class BankAccount\n{\n    private String owner;\n    private double balance;\n\n    public BankAccount(String owner, double startBalance) { /* not shown */ }\n    public BankAccount(String owner)  { /* sets balance to 0.0 */ }\n\n    public void deposit(double amount)  { /* adds amount to balance */ }\n    public double getBalance()          { /* returns balance */ }\n    public String getOwner()            { /* returns owner */ }\n}",
-  parts:[
-   {l:"(a)", p:'Write a code segment that creates an account named acct for "Ava" with a starting balance of 50.0, deposits 25.5, and prints the balance. What is printed?',
-    sol:'BankAccount acct = new BankAccount("Ava", 50.0);\nacct.deposit(25.5);\nSystem.out.println(acct.getBalance());    // prints 75.5',
-    rub:["Declares a BankAccount variable and uses new with matching arguments (String, double)","Calls deposit on the object: acct.deposit(25.5)","Prints acct.getBalance() (with parentheses), not acct.balance","Predicts 75.5"]},
-   {l:"(b)", p:"A student writes this code. What happens when it runs, and how would you fix it?",
-    code:"BankAccount b = null;\nb.deposit(10.0);",
-    sol:'It compiles, but b doesn\'t refer to an object, so calling deposit on it throws a NullPointerException at run time.\n\nFix: create the object first.\nBankAccount b = new BankAccount("Sam");\nb.deposit(10.0);',
-    rub:["Says it throws a NullPointerException (a run-time error, not a compile error)","Explains why: b is null, so there's no object to call the method on","Fixes it by creating an object with new before calling deposit"]},
-   {l:"(c)", p:"Another student writes BankAccount.deposit(10.0); Why doesn't this work?",
-    sol:"deposit is an instance method (no static in its header), so it has to be called on a specific BankAccount object, like acct.deposit(10.0). Only static (class) methods are called with the class name.",
-    rub:["Says deposit is an instance method / not static","Says it must be called on an object with the dot operator"]}
-  ]}
-];
-const FKEY = "csa1b-frq-v1";
-let fstate = {};
-try { fstate = JSON.parse(localStorage.getItem(FKEY) || "{}") || {}; } catch(e) { fstate = {}; }
-const fsave = () => { try { localStorage.setItem(FKEY, JSON.stringify(fstate)); } catch(e) {} };
-const frqsEl = document.getElementById("frqs");
-const totalPts = FRQ.reduce((n,f)=>n+f.parts.reduce((m,p)=>m+p.rub.length,0),0);
-function frqScore(){
-  const got = Object.keys(fstate).filter(k=>k.startsWith("r") && fstate[k]).length;
-  document.getElementById("frqScore").textContent = `${got} / ${totalPts} rubric points checked off`;
-}
-function renderFRQ(){
-  frqsEl.innerHTML = "";
-  FRQ.forEach((f,fi)=>{
-    const card = document.createElement("div"); card.className = "frq";
-    let h = `<div class="meta"><span class="tag">${f.tags}</span></div><h3>${esc(f.t)}</h3><p>${esc(f.intro)}</p>`;
-    if(f.given) h += `<pre><code>${esc(f.given)}</code></pre>`;
-    f.parts.forEach((p,pi)=>{
-      const id = `${fi}_${pi}`; const open = !!fstate["o"+id];
-      h += `<div class="part"><span class="pl">PART ${p.l}</span><p>${esc(p.p)}</p>`;
-      if(p.code) h += `<pre><code>${esc(p.code)}</code></pre>`;
-      h += `<label class="eyebrow" for="ta${id}">Your answer</label><textarea id="ta${id}" data-id="${id}" spellcheck="false" placeholder="Write your code here (or on paper)">${esc(fstate["t"+id]||"")}</textarea>`;
-      h += `<button type="button" class="show" data-id="${id}" aria-expanded="${open}">${open?"Hide":"Show"} sample solution and rubric</button>`;
-      h += `<div id="sol${id}" ${open?"":"hidden"}><pre><code>${esc(p.sol)}</code></pre><ul class="rubric">` +
-        p.rub.map((r,ri)=>{ const k=`r${id}_${ri}`; return `<li><label for="${k}"><input type="checkbox" id="${k}" data-k="${k}" ${fstate[k]?"checked":""}><span>${esc(r)}</span></label></li>`; }).join("") +
-        `</ul></div></div>`;
-    });
-    card.innerHTML = h; frqsEl.appendChild(card);
-  });
-  frqScore();
-}
-frqsEl.addEventListener("input", e=>{
-  if(e.target.matches("textarea")){ fstate["t"+e.target.dataset.id] = e.target.value; fsave(); }
-});
-frqsEl.addEventListener("change", e=>{
-  if(e.target.matches("input[type=checkbox]")){ fstate[e.target.dataset.k] = e.target.checked; fsave(); frqScore(); }
-});
-frqsEl.addEventListener("click", e=>{
-  const b = e.target.closest(".show"); if(!b) return;
-  const id = b.dataset.id; const sol = document.getElementById("sol"+id);
-  sol.hidden = !sol.hidden; fstate["o"+id] = !sol.hidden; fsave();
-  b.setAttribute("aria-expanded", String(!sol.hidden));
-  b.textContent = (sol.hidden?"Show":"Hide") + " sample solution and rubric";
-});
-document.getElementById("frqReset").addEventListener("click", ()=>{ fstate={}; fsave(); renderFRQ(); });
-renderFRQ();
+start();
 </script>
 </body>
 </html>
